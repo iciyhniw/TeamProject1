@@ -1,21 +1,30 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 
-const Navbar = ({ onSearch }) => (
-    <div className="navbar">
-        <div className="nav-links">
-            <Link to="/">Home</Link>
+const Navbar = ({ onSearch }) => {
+    const navigate = useNavigate();
+
+    const handleFocus = () => {
+        navigate('/search');
+    };
+
+    return (
+        <div className="navbar">
+            <div className="nav-links">
+                <Link to="/">Home</Link>
+            </div>
+            <input
+                type="text"
+                placeholder="Search music..."
+                onChange={(e) => onSearch && onSearch(e.target.value)}
+                onFocus={handleFocus}
+            />
+            <div className="nav-links nav-links-right">
+                <Link to="/profile">Profile</Link>
+            </div>
         </div>
-        <input
-            type="text"
-            placeholder="Search music..."
-            onChange={(e) => onSearch(e.target.value)}
-        />
-        <div className="nav-links nav-links-right">
-            <Link to="/profile">Profile</Link>
-        </div>
-    </div>
-);
+    );
+};
 
 export default Navbar;
