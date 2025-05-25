@@ -135,6 +135,19 @@
   cursor: pointer;
 }
 
+.audio-player button.download {
+  background: none;
+  border: none;
+  color: #b3b3b3;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.audio-player button.download:hover {
+  color: #ffffff;
+}
+
 .audio-player .volume input[type="range"]::-webkit-slider-thumb:hover {
   background: #1ed760;
 }

@@ -61,14 +61,12 @@ const AudioPlayer = ({ track }) => {
 
   const progressPercentage = duration ? (currentTime / duration) * 100 : 0;
 
-  // Функція для поділу піснею
   const handleShare = async () => {
     if (!track) return;
 
     const shareText = `Слухай "${track.name}" від ${track.artist_name}! 🎵\n${window.location.href}?track=${encodeURIComponent(track.audio)}`;
 
     if (navigator.share) {
-      // Використовуємо Web Share API, якщо підтримується
       try {
         await navigator.share({
           title: `${track.name} - ${track.artist_name}`,
@@ -80,10 +78,47 @@ const AudioPlayer = ({ track }) => {
         console.log('Помилка поділу:', error);
       }
     } else {
-      // Якщо Web Share API не підтримується, копіюємо в буфер обміну
       navigator.clipboard.writeText(shareText)
         .then(() => alert('Посилання на пісню скопійовано в буфер обміну!'))
         .catch((err) => console.error('Помилка копіювання:', err));
+    }
+  };
+
+  // Альтернативна функція для скачування
+  const handleDownload = async () => {
+    if (!track || !track.audio) {
+      alert('Немає доступного файлу для завантаження.');
+      return;
+    }
+
+    try {
+      // Завантажуємо файл як Blob
+      const response = await fetch(track.audio, {
+        method: 'GET',
+        mode: 'cors', // Додаємо CORS, якщо потрібно
+        headers: {
+          'Accept': 'audio/mpeg', // Вказуємо тип файлу
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Помилка завантаження: ${response.statusText}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${track.name}_${track.artist_name}.mp3`; // Ім'я файлу
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url); // Очищаємо пам’ять
+
+      alert('Пісня завантажується...');
+    } catch (error) {
+      console.error('Помилка при завантаженні:', error);
+      alert('Не вдалося завантажити пісню. Перевірте URL або серверні налаштування.');
     }
   };
 
@@ -108,8 +143,8 @@ const AudioPlayer = ({ track }) => {
           {isPlaying ? '⏸' : '▶'}
         </button>
         <button className="next">⏩</button>
-        <button className="shuffle">⤓</button>
         <button className="share" onClick={handleShare}>📤</button>
+        <button className="download" onClick={handleDownload}>⬇️</button>
       </div>
       <span className="time">{formatTime(duration)}</span>
       <div className="progress-bar" onClick={handleSeek}>
