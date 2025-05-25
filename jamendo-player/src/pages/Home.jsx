@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Navbar from '../components/Navbar';
 import GenreCard from '../components/GenreCard';
 import AudioPlayer from '../components/AudioPlayer';
 import { getTracksByGenre, searchTracks } from '../api';
