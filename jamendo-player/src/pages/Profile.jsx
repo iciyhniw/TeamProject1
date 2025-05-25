@@ -14,7 +14,6 @@ const Profile = () => {
 
     return (
         <div className="profile-page">
-            <Navbar onSearch={handleSearch} />
             <div className="profile-container">
                 <div className="profile-card">
                     <div className="profile-header">

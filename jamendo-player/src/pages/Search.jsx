@@ -36,7 +36,6 @@ const Search = () => {
 
     return (
         <div className="search-page with-audio-player">
-            <Navbar onSearch={handleSearch} />
             <div className="search-container">
                 <div className="genre-section">
                     <h2 className="section-title">Genres</h2>
