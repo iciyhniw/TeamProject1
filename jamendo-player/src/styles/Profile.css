@@ -1,6 +1,12 @@
-.profile-container {
+.profile-page {
     background: linear-gradient(135deg, #2b2d42 0%, #4b5e8a 100%);
-    min-height: calc(100vh - 4.5rem); /* Adjust for navbar height */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-container {
+    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;

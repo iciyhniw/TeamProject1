@@ -5,6 +5,7 @@ import Search from './pages/Search';
 import './styles/CommonFile.css'
 import Profile from "./pages/Profile";
 
+
 const App = () => (
   <Router>
     <Routes>
