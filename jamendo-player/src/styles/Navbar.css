@@ -1,0 +1,17 @@
+.navbar {
+  background-color: #e3e3e3;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.navbar input {
+  padding: 0.5rem;
+  width: 100%;
+  max-width: 400px;
+}
+.nav-links {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}

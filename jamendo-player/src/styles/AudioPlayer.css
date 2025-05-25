@@ -1,0 +1,15 @@
+.audio-player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #ffffff;
+  border-top: 1px solid #ccc;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+  padding: 0rem;
+  z-index: 1000;
+  text-align: center;
+}
+.audio-player h4 {
+  margin-bottom: 0.5rem;
+}
