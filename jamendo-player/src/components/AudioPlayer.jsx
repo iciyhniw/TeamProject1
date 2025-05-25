@@ -1,49 +1,29 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../styles/AudioPlayer.css';
 
+
 const AudioPlayer = ({ track }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0); // Стан для поточного треку
-  const [playlist, setPlaylist] = useState(JSON.parse(localStorage.getItem('playlist') || '[]')); // Плейлист із localStorage
+  const [isLiked, setIsLiked] = useState(false); // New state for like status
   const audioRef = useRef(null);
 
-  // Оновлення стану isLiked і плейлиста при зміні треку
+  // Check if the track is already in the playlist on component mount
   useEffect(() => {
     if (!track) return;
-    const storedPlaylist = JSON.parse(localStorage.getItem('playlist') || '[]');
-    setPlaylist(storedPlaylist);
-    setIsLiked(storedPlaylist.some(item => item.audio === track.audio));
-    // Знаходимо індекс поточного треку в плейлисті
-    const trackIndex = storedPlaylist.findIndex(item => item.audio === track.audio);
-    setCurrentTrackIndex(trackIndex >= 0 ? trackIndex : 0);
+    const playlist = JSON.parse(localStorage.getItem('playlist') || '[]');
+    setIsLiked(playlist.some(item => item.audio === track.audio));
   }, [track]);
-
-  // Функція для оновлення аудіо при зміні треку
-  const updateTrack = (newIndex) => {
-    if (playlist.length === 0) return;
-    setCurrentTrackIndex(newIndex);
-    const newTrack = playlist[newIndex];
-    if (audioRef.current) {
-      audioRef.current.src = newTrack.audio;
-      audioRef.current.load();
-      setCurrentTime(0);
-      if (isPlaying) {
-        audioRef.current.play().catch(err => console.error('Помилка відтворення:', err));
-      }
-    }
-  };
 
   const togglePlayPause = () => {
     if (!audioRef.current) return;
     if (isPlaying) {
       audioRef.current.pause();
     } else {
-      audioRef.current.play().catch(err => console.error('Помилка відтворення:', err));
+      audioRef.current.play();
     }
     setIsPlaying(!isPlaying);
   };
@@ -92,43 +72,30 @@ const AudioPlayer = ({ track }) => {
 
   const handleLike = () => {
     if (!track) return;
-    let updatedPlaylist = [...playlist];
-    const isTrackInPlaylist = updatedPlaylist.some(item => item.audio === track.audio);
+
+    // Get or initialize playlist
+    let playlist = JSON.parse(localStorage.getItem('playlist') || '[]');
+
+    // Check if track is already in playlist
+    const isTrackInPlaylist = playlist.some(item => item.audio === track.audio);
 
     if (!isTrackInPlaylist) {
-      updatedPlaylist.push({
+      // Add track to playlist
+      playlist.push({
         name: track.name,
         artist_name: track.artist_name,
         audio: track.audio
       });
-      localStorage.setItem('playlist', JSON.stringify(updatedPlaylist));
-      setPlaylist(updatedPlaylist);
+      localStorage.setItem('playlist', JSON.stringify(playlist));
       setIsLiked(true);
       alert(`Додано "${track.name}" до плейлиста!`);
     } else {
-      updatedPlaylist = updatedPlaylist.filter(item => item.audio !== track.audio);
-      localStorage.setItem('playlist', JSON.stringify(updatedPlaylist));
-      setPlaylist(updatedPlaylist);
+      // Remove track from playlist
+      playlist = playlist.filter(item => item.audio !== track.audio);
+      localStorage.setItem('playlist', JSON.stringify(playlist));
       setIsLiked(false);
       alert(`Видалено "${track.name}" з плейлиста!`);
     }
-    // Оновлюємо індекс поточного треку після зміни плейлиста
-    const trackIndex = updatedPlaylist.findIndex(item => item.audio === track.audio);
-    setCurrentTrackIndex(trackIndex >= 0 ? trackIndex : 0);
-  };
-
-  // Обробка кнопки "назад"
-  const handlePrevious = () => {
-    if (playlist.length <= 1) return; // Нічого не робимо, якщо плейлист порожній або має 1 трек
-    const newIndex = currentTrackIndex > 0 ? currentTrackIndex - 1 : playlist.length - 1; // Зациклення до останнього треку
-    updateTrack(newIndex);
-  };
-
-  // Обробка кнопки "вперед"
-  const handleNext = () => {
-    if (playlist.length <= 1) return; // Нічого не робимо, якщо плейлист порожній або має 1 трек
-    const newIndex = currentTrackIndex < playlist.length - 1 ? currentTrackIndex + 1 : 0; // Зациклення до першого треку
-    updateTrack(newIndex);
   };
 
   useEffect(() => {
@@ -206,31 +173,25 @@ const AudioPlayer = ({ track }) => {
 
   if (!track) return null;
 
-  // Оновлюємо відображення назви треку з плейлиста, якщо є
-  const displayTrack = playlist.length > 0 && currentTrackIndex < playlist.length ? playlist[currentTrackIndex] : track;
-
   return (
     <div className="audio-player">
       <h4>
-        {displayTrack.name} - {displayTrack.artist_name}
+        {track.name} - {track.artist_name}
       </h4>
       <audio
         ref={audioRef}
-        src={displayTrack.audio}
+        src={track.audio}
         onTimeUpdate={handleTimeUpdate}
-        onEnded={() => {
-          setIsPlaying(false);
-          handleNext(); // Автоматично відтворюємо наступний трек після завершення
-        }}
+        onEnded={() => setIsPlaying(false)}
       />
       <span className="time">{formatTime(currentTime)}</span>
       <div className="controls">
         <button className={`like ${isLiked ? 'liked' : ''}`} onClick={handleLike}>♥</button>
-        <button className="previous" onClick={handlePrevious}>⏪</button>
+        <button className="previous">⏪</button>
         <button className="play-pause" onClick={togglePlayPause}>
           {isPlaying ? '⏸' : '▶'}
         </button>
-        <button className="next" onClick={handleNext}>⏩</button>
+        <button className="next">⏩</button>
         <button className="share" onClick={handleShare}>📤</button>
         <button className="download" onClick={handleDownload}>⬇️</button>
       </div>
@@ -241,12 +202,8 @@ const AudioPlayer = ({ track }) => {
       <div className="volume">
         <button className="mute-toggle" onClick={toggleMute}>
           <img
-            src={
-              isMuted
-                ? 'https://cdn-icons-png.flaticon.com/512/565/565284.png'
-                : 'https://cdn-icons-png.flaticon.com/512/565/565297.png'
-            }
-            alt={isMuted ? 'Увімкнути звук' : 'Вимкнути звук'}
+            src={isMuted ? 'https://cdn-icons-png.flaticon.com/512/786/786374.png' : 'https://cdn-icons-png.flaticon.com/512/727/727606.png'}
+            alt={isMuted ? 'Unmute' : 'Mute'}
             className="mute-icon"
           />
         </button>
