@@ -8,7 +8,7 @@ const AudioPlayer = ({ track }) => {
   const audioRef = useRef(null);
 
   const togglePlayPause = () => {
-    if (!audioRef.current) return; // Перевірка на null
+    if (!audioRef.current) return;
     if (isPlaying) {
       audioRef.current.pause();
     } else {
@@ -18,7 +18,7 @@ const AudioPlayer = ({ track }) => {
   };
 
   const handleTimeUpdate = () => {
-    if (!audioRef.current) return; // Перевірка на null
+    if (!audioRef.current) return;
     setCurrentTime(audioRef.current.currentTime);
     setDuration(audioRef.current.duration);
   };
@@ -30,7 +30,7 @@ const AudioPlayer = ({ track }) => {
   };
 
   const handleSeek = (e) => {
-    if (!audioRef.current) return; // Перевірка на null
+    if (!audioRef.current) return;
     const progressBar = e.currentTarget;
     const rect = progressBar.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
@@ -41,14 +41,14 @@ const AudioPlayer = ({ track }) => {
   };
 
   const handleVolumeChange = (e) => {
-    if (!audioRef.current) return; // Перевірка на null
+    if (!audioRef.current) return;
     const newVolume = e.target.value;
     setVolume(newVolume);
     audioRef.current.volume = newVolume;
   };
 
   useEffect(() => {
-    if (!track || !audioRef.current) return; // Перевірка на null
+    if (!track || !audioRef.current) return;
     const audio = audioRef.current;
     audio.volume = volume;
     audio.addEventListener('loadedmetadata', () => {
@@ -57,9 +57,35 @@ const AudioPlayer = ({ track }) => {
     return () => {
       audio.removeEventListener('loadedmetadata', () => {});
     };
-  }, [track, volume]); // Додали track у залежності
+  }, [track, volume]);
 
   const progressPercentage = duration ? (currentTime / duration) * 100 : 0;
+
+  // Функція для поділу піснею
+  const handleShare = async () => {
+    if (!track) return;
+
+    const shareText = `Слухай "${track.name}" від ${track.artist_name}! 🎵\n${window.location.href}?track=${encodeURIComponent(track.audio)}`;
+
+    if (navigator.share) {
+      // Використовуємо Web Share API, якщо підтримується
+      try {
+        await navigator.share({
+          title: `${track.name} - ${track.artist_name}`,
+          text: `Слухай цю пісню!`,
+          url: window.location.href,
+        });
+        console.log('Пісня успішно поділена!');
+      } catch (error) {
+        console.log('Помилка поділу:', error);
+      }
+    } else {
+      // Якщо Web Share API не підтримується, копіюємо в буфер обміну
+      navigator.clipboard.writeText(shareText)
+        .then(() => alert('Посилання на пісню скопійовано в буфер обміну!'))
+        .catch((err) => console.error('Помилка копіювання:', err));
+    }
+  };
 
   if (!track) return null;
 
@@ -83,6 +109,7 @@ const AudioPlayer = ({ track }) => {
         </button>
         <button className="next">⏩</button>
         <button className="shuffle">⤓</button>
+        <button className="share" onClick={handleShare}>📤</button>
       </div>
       <span className="time">{formatTime(duration)}</span>
       <div className="progress-bar" onClick={handleSeek}>
