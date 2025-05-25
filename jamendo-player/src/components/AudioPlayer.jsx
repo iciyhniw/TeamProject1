@@ -1,15 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 const AudioPlayer = ({ track }) => {
-  // Викликаємо всі Hooks на верхньому рівні, до будь-яких умов
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.5);
   const audioRef = useRef(null);
 
-  // Handle play/pause toggle
   const togglePlayPause = () => {
+    if (!audioRef.current) return; // Перевірка на null
     if (isPlaying) {
       audioRef.current.pause();
     } else {
@@ -18,21 +17,20 @@ const AudioPlayer = ({ track }) => {
     setIsPlaying(!isPlaying);
   };
 
-  // Update current time as audio plays
   const handleTimeUpdate = () => {
+    if (!audioRef.current) return; // Перевірка на null
     setCurrentTime(audioRef.current.currentTime);
     setDuration(audioRef.current.duration);
   };
 
-  // Format time (e.g., 0:47)
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  // Handle progress bar click to seek
   const handleSeek = (e) => {
+    if (!audioRef.current) return; // Перевірка на null
     const progressBar = e.currentTarget;
     const rect = progressBar.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
@@ -42,15 +40,15 @@ const AudioPlayer = ({ track }) => {
     setCurrentTime(newTime);
   };
 
-  // Handle volume change
   const handleVolumeChange = (e) => {
+    if (!audioRef.current) return; // Перевірка на null
     const newVolume = e.target.value;
     setVolume(newVolume);
     audioRef.current.volume = newVolume;
   };
 
-  // Set initial volume and duration when audio metadata loads
   useEffect(() => {
+    if (!track || !audioRef.current) return; // Перевірка на null
     const audio = audioRef.current;
     audio.volume = volume;
     audio.addEventListener('loadedmetadata', () => {
@@ -59,12 +57,10 @@ const AudioPlayer = ({ track }) => {
     return () => {
       audio.removeEventListener('loadedmetadata', () => {});
     };
-  }, [volume]);
+  }, [track, volume]); // Додали track у залежності
 
-  // Calculate progress percentage for the progress bar
   const progressPercentage = duration ? (currentTime / duration) * 100 : 0;
 
-  // Переміщуємо умову після всіх Hooks
   if (!track) return null;
 
   return (
