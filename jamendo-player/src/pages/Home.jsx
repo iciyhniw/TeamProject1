@@ -23,7 +23,6 @@ const Home = () => {
 
     return (
         <div className="home-page with-audio-player">
-            <Navbar onSearch={handleSearch} />
             <div className="home-container">
                 <div className="genre-section">
                     <h2 className="section-title">Genres</h2>
