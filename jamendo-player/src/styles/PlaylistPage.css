@@ -1,0 +1,235 @@
+.playlist-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #2b2d42 0%, #4b5e8a 100%);
+    padding: 2rem;
+    color: white;
+}
+
+.playlist-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.playlist-info {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.playlist-icon {
+    width: 150px;
+    height: 150px;
+    background: #4a90e2;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.playlist-icon i {
+    font-size: 4rem;
+    color: white;
+}
+
+.playlist-details h1 {
+    font-size: 3rem;
+    margin: 0;
+    margin-bottom: 0.5rem;
+}
+
+.playlist-details p {
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+.tracks-container {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1rem;
+    backdrop-filter: blur(10px);
+}
+
+.tracks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.track-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.track-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.track-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    flex: 1;
+}
+
+.track-number {
+    color: rgba(255, 255, 255, 0.7);
+    width: 30px;
+    text-align: center;
+}
+
+.track-details h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.track-details p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.remove-track-button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    opacity: 0;
+}
+
+.track-item:hover .remove-track-button {
+    opacity: 1;
+}
+
+.remove-track-button:hover {
+    color: #e74c3c;
+    background: rgba(231, 76, 60, 0.1);
+}
+
+.empty-playlist {
+    text-align: center;
+    padding: 3rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.add-tracks-button {
+    background: #4a90e2;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+}
+
+.add-tracks-button:hover {
+    background: #357abd;
+    transform: translateY(-2px);
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid #4a90e2;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-message {
+    color: #e74c3c;
+    background: rgba(231, 76, 60, 0.1);
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.not-found {
+    text-align: center;
+    padding: 3rem;
+}
+
+@media (max-width: 768px) {
+    .playlist-page {
+        padding: 1rem;
+    }
+
+    .playlist-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .playlist-info {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .playlist-icon {
+        width: 120px;
+        height: 120px;
+    }
+
+    .playlist-details h1 {
+        font-size: 2rem;
+    }
+
+    .track-item {
+        padding: 0.8rem;
+    }
+
+    .track-number {
+        width: 25px;
+    }
+
+    .track-details h3 {
+        font-size: 1rem;
+    }
+
+    .track-details p {
+        font-size: 0.8rem;
+    }
+} 
