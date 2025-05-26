@@ -22,24 +22,24 @@
     text-align: center;
 }
 
-.genre-section,
-.track-section {
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
-}
+/*.genre-section,*/
+/*.track-section {*/
+/*    max-width: 1200px;*/
+/*    width: 100%;*/
+/*    margin: 0 auto;*/
+/*}*/
 
-.genre-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 1rem;
-}
+/*.genre-grid {*/
+/*    display: grid;*/
+/*    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));*/
+/*    gap: 1rem;*/
+/*}*/
 
-.track-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1.5rem;
-}
+/*.track-grid {*/
+/*    display: grid;*/
+/*    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));*/
+/*    gap: 1.5rem;*/
+/*}*/
 
 .track-card {
     background-color: rgba(255, 255, 255, 0.95);
