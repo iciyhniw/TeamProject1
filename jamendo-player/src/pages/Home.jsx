@@ -30,7 +30,6 @@ const Home = () => {
                             <GenreCard
                                 key={g}
                                 genre={g}
-                                image={`https://source.unsplash.com/160x100/?${g}`}
                                 onClick={() => handleGenreClick(g)}
                             />
                         ))}
