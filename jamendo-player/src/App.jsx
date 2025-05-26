@@ -9,6 +9,7 @@ import RegisterPage from './pages/RegisterPage';
 import Navbar from './components/Navbar';
 import { auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { AuthProvider } from './components/AuthContext';
 
 const App = () => {
     const [user, setUser] = useState(null); // 🔹 Додаємо стан користувача
@@ -21,6 +22,7 @@ const App = () => {
         return () => unsubscribe(); // очистка слухача
     }, []);
     return(
+      <AuthProvider>
         <Router>
             <Navbar user={user} />
             <Routes>
@@ -31,6 +33,7 @@ const App = () => {
                 <Route path="/register" element={<RegisterPage />} />
             </Routes>
         </Router>
+      </AuthProvider>
     );
 };
 
