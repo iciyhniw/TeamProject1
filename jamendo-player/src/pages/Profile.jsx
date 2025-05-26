@@ -10,6 +10,7 @@ const Profile = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         displayName: '',
+        photoURL: '',
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
@@ -21,7 +22,10 @@ const Profile = () => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
                 setUser(user);
-                setFormData(prev => ({ ...prev, displayName: user.displayName || '' }));
+                setFormData(prev => ({ ...prev, 
+                    displayName: user.displayName || '',
+                    photoURL: user.photoURL || ''
+                 }));
             } else {
                 navigate('/login');
             }
@@ -44,7 +48,8 @@ const Profile = () => {
 
         try {
             await updateProfile(auth.currentUser, {
-                displayName: formData.displayName
+                displayName: formData.displayName,
+                photoURL: formData.photoURL
             });
             setSuccess('Profile updated successfully!');
             setIsEditing(false);
@@ -94,15 +99,11 @@ const Profile = () => {
                     <div className="profile-content">
                         <div className="profile-info">
                             <div className="profile-avatar">
-                                {user.photoURL ? (
-                                    <img src={user.photoURL} alt="Profile" />
-                                ) : (
-                                    <div className="avatar-placeholder">
-                                        {user.displayName?.charAt(0) || user.email?.charAt(0)}
-                                    </div>
-                                )}
+                                <img
+                                    src={user.photoURL || '/images/profilePhoto.jpg'}
+                                    alt="Profile"
+                                />
                             </div>
-                            
                             {!isEditing ? (
                                 <>
                                     <h2>{user.displayName || 'User'}</h2>
@@ -127,6 +128,16 @@ const Profile = () => {
                                             required
                                         />
                                     </div>
+                                        <div className="form-group">
+                                            <label>Photo URL:</label>
+                                            <input
+                                                type="text"
+                                                name="photoURL"
+                                                value={formData.photoURL}
+                                                onChange={handleInputChange}
+                                                placeholder="Enter image URL"
+                                            />
+                                        </div>
                                     <div className="button-group">
                                         <button type="submit" className="profile-button save-button">Save Changes</button>
                                         <button 
