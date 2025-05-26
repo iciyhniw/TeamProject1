@@ -25,19 +25,19 @@ const Navbar = ({ onSearch, user }) => {
                 <Link to="/profile">Profile</Link>
             </div>
             <div className="auth-section">
-              {user ? (
-                <>
-                  <button onClick={() => signOut(auth)} className="logout-button">Вихід</button>
-                </>
-              ) : (
-                <>
-                  <Link to="/login" className="auth-button login">Увійти</Link>
-                  <Link to="/register" className="auth-button register">Реєстрація</Link>
-                </>
-              )}
+                {user ? (
+                    <>
+                        <button onClick={() => signOut(auth)} className="logout-button">Вихід</button>
+                    </>
+                ) : (
+                    <>
+                        <Link to="/login" className="auth-button login">Увійти</Link>
+                        <Link to="/register" className="auth-button register">Реєстрація</Link>
+                    </>
+                )}
             </div>
         </div>
-        
+
     );
 };
 

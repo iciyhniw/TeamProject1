@@ -11,27 +11,27 @@ import { auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
 const App = () => {
-  const [user, setUser] = useState(null); // 🔹 Додаємо стан користувача
+    const [user, setUser] = useState(null); // 🔹 Додаємо стан користувача
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser); // 🔄 оновлення користувача при вході/виході
-    });
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser); // 🔄 оновлення користувача при вході/виході
+        });
 
-    return () => unsubscribe(); // очистка слухача
-  }, []);
-  return(
-  <Router>
-    <Navbar user={user} />
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/search" element={<Search />} />
-      <Route path= "/Profile" element={<Profile />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-    </Routes>
-  </Router>
-  );
+        return () => unsubscribe(); // очистка слухача
+    }, []);
+    return(
+        <Router>
+            <Navbar user={user} />
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/search" element={<Search />} />
+                <Route path= "/Profile" element={<Profile />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+            </Routes>
+        </Router>
+    );
 };
 
 export default App;
