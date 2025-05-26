@@ -23,21 +23,16 @@ const Navbar = ({ onSearch, user }) => {
             />
             <div className="nav-links nav-links-right">
                 <Link to="/profile">Profile</Link>
-            </div>
-            <div className="auth-section">
                 {user ? (
-                    <>
-                        <button onClick={() => signOut(auth)} className="logout-button">Вихід</button>
-                    </>
+                    <button onClick={() => signOut(auth)} className="nav-link-button">Вихід</button>
                 ) : (
                     <>
-                        <Link to="/login" className="auth-button login">Увійти</Link>
-                        <Link to="/register" className="auth-button register">Реєстрація</Link>
+                        <Link to="/login" className="nav-link-button">Увійти</Link>
+                        <Link to="/register" className="nav-link-button">Реєстрація</Link>
                     </>
                 )}
             </div>
         </div>
-
     );
 };
 
