@@ -1,159 +1,105 @@
 .audio-player {
-  position: fixed;
   bottom: 0;
-  left: 0;
-  width: 100%;
-  background: rgba(24, 24, 24, 0.95);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
-  padding: 1rem;
-  z-index: 1000;
+  position: fixed;
+  background-color: #2b3260;
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  color: #ffffff;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-}
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden; /* Запобігаємо горизонтальному переповненню */
+  padding: 0 1rem; /* Додатковий відступ для уникнення обрізання */
+}/*xxx*/
 
 .player-main {
+  flex: 1;
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 60%;
+  padding: 0 0.5rem;
 }
 
-.track-info {
-  min-width: 200px;
-  max-width: 300px;
+.player-main .track-info {
+  text-align: center;
 }
 
-.track-info h4 {
+.player-main .track-info h4 {
   margin: 0;
   font-size: 1rem;
-  font-weight: 600;
-  color: #ffffff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: white;
 }
 
-.track-info p {
-  margin: 0.25rem 0 0;
-  font-size: 0.9rem;
-  color: #b3b3b3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.player-main .track-info p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: white;
 }
 
 .progress-container {
-  flex: 1;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.time {
+.progress-container .time {
   font-size: 0.8rem;
-  color: #b3b3b3;
-  min-width: 40px;
+  color: white;
 }
 
-.progress-bar {
+.progress-container .progress-bar {
   flex: 1;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  cursor: pointer;
-  position: relative;
-  transition: height 0.2s ease;
-}
-
-.progress-bar:hover {
-  height: 6px;
-}
-
-.progress {
-  height: 100%;
-  background: #1db954;
-  border-radius: 2px;
-  transition: width 0.1s linear;
-}
-
-.progress-bar:hover .progress {
-  background: #1ed760;
+  height: 5px;
 }
 
 .controls {
   display: flex;
-  align-items: center;
   justify-content: center;
   gap: 1rem;
+  margin: 0.5rem 0;
 }
 
 .control-button {
   background: none;
   border: none;
-  color: #b3b3b3;
+  color: white;
   font-size: 1.2rem;
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: color 0.3s ease;
 }
 
 .control-button:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
+  color: #7a99ff;
 }
 
 .control-button.active {
-  color: #1db954;
-}
-
-.control-button.play-pause {
-  width: 40px;
-  height: 40px;
-  background: #ffffff;
-  color: #000000;
-  font-size: 1.2rem;
-}
-
-.control-button.play-pause:hover {
-  transform: scale(1.1);
-  background: #f2f2f2;
+  color: #7a99ff;
 }
 
 .player-actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 1rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  max-width: 40%;
+  padding: 0 0.5rem;
 }
 
 .action-button {
   background: none;
   border: none;
-  color: #b3b3b3;
-  font-size: 1.1rem;
+  color: white;
+  font-size: 1.2rem;
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 50%;
-  transition: all 0.2s ease;
+  transition: color 0.3s ease;
 }
 
 .action-button:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
+  color: #7a99ff;
 }
 
 .action-button.active {
-  color: #1db954;
+  color: #ff0000; /* Червоний для лайка */
 }
 
 .volume-control {
@@ -163,52 +109,32 @@
 }
 
 .volume-slider {
-  width: 100px;
-  height: 4px;
-  -webkit-appearance: none;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  outline: none;
+  color: #2ecc71;
+  width: 80px;
+  height: 5px;
 }
 
-.volume-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
-  background: #ffffff;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.volume-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-}
-
+/* Адаптивність для менших екранів */
 @media (max-width: 768px) {
   .audio-player {
-    padding: 0.8rem;
+    flex-direction: column;
+    padding: 0.5rem;
   }
 
   .player-main {
-    flex-direction: column;
-    gap: 0.8rem;
-  }
-
-  .track-info {
-    text-align: center;
     max-width: 100%;
   }
 
-  .controls {
-    order: -1;
-  }
-
   .player-actions {
+    max-width: 100%;
     justify-content: center;
   }
 
-  .volume-control {
-    display: none;
+  .volume-slider {
+    width: 60px;
+  }
+
+  .controls {
+    gap: 0.5rem;
   }
 }
