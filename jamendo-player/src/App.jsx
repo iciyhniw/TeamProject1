@@ -7,9 +7,10 @@ import Profile from "./pages/Profile";
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Navbar from './components/Navbar';
+import Library from './pages/Library';
+import PlaylistPage from './pages/PlaylistPage';
 import { auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { AuthProvider } from './components/AuthContext';
 
 const App = () => {
     const [user, setUser] = useState(null); // 🔹 Додаємо стан користувача
@@ -22,18 +23,18 @@ const App = () => {
         return () => unsubscribe(); // очистка слухача
     }, []);
     return(
-      <AuthProvider>
         <Router>
             <Navbar user={user} />
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/search" element={<Search />} />
-                <Route path= "/Profile" element={<Profile />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/library" element={<Library />} />
+                <Route path="/playlist/:playlistId" element={<PlaylistPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
             </Routes>
         </Router>
-      </AuthProvider>
     );
 };
 
