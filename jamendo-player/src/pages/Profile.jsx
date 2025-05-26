@@ -23,7 +23,6 @@ const Profile = () => {
               <h2>User Information</h2>
               <p><strong>Name:</strong> {user.displayName || 'Не вказано'}</p>
               <p><strong>Email:</strong> {user.email}</p>
-              <p><strong>User ID:</strong> {user.uid}</p>
             </div>
             <div className="profile-actions">
               <button className="profile-button">Edit Profile</button>
