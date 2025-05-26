@@ -27,6 +27,7 @@ const Profile = () => {
             }
         });
 
+<<<<<<< HEAD
         return () => unsubscribe();
     }, [navigate]);
 
@@ -180,6 +181,20 @@ const Profile = () => {
                         </div>
                     </div>
                 </div>
+=======
+  return (
+    <div className="profile-page">
+      <div className="profile-container">
+        <div className="profile-card">
+          <div className="profile-header">
+            <h1>Profile</h1>
+          </div>
+          <div className="profile-content">
+            <div className="profile-info">
+              <h2>User Information</h2>
+              <p><strong>Name:</strong> {user.displayName || 'Не вказано'}</p>
+              <p><strong>Email:</strong> {user.email}</p>
+>>>>>>> c27fa24a45094e3f2f2f0ee5161202d57d75feb0
             </div>
         </div>
     );
