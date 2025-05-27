@@ -2,6 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FaPlay, FaPause, FaStepForward, FaStepBackward, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
 import '../styles/AudioPlayer.css';
 
+import { doc, setDoc, deleteDoc, getDoc, collection } from 'firebase/firestore';
+import { auth, db } from '../firebase';
+
+
 const AudioPlayer = ({ track, onTrackEnd }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -53,10 +57,19 @@ const AudioPlayer = ({ track, onTrackEnd }) => {
   }, [isPlaying, currentTrackIndex]);
 
   useEffect(() => {
-    if (!track) return;
-    const savedPlaylist = JSON.parse(localStorage.getItem('playlist') || '[]');
-    setIsLiked(savedPlaylist.some(item => item.audio === track.audio));
+    const checkLiked = async () => {
+      if (!track || !auth.currentUser) return;
+      try {
+        const ref = doc(db, 'likedSongs', auth.currentUser.uid, 'songs', track.id);
+        const docSnap = await getDoc(ref);
+        setIsLiked(docSnap.exists());
+      } catch (err) {
+        console.error('Error checking liked status:', err);
+      }
+    };
+    checkLiked();
   }, [track]);
+
 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
@@ -151,26 +164,29 @@ const AudioPlayer = ({ track, onTrackEnd }) => {
 
   const currentTrack = playlist[currentTrackIndex];
 
-  const handleLike = () => {
-    if (!currentTrack) return;
+  const handleLike = async () => {
+    if (!track || !auth.currentUser) return;
 
-    let savedPlaylist = JSON.parse(localStorage.getItem('playlist') || '[]');
-    const isTrackInPlaylist = savedPlaylist.some(item => item.audio === currentTrack.audio);
+    const trackRef = doc(db, 'likedSongs', auth.currentUser.uid, 'songs', track.id);
 
-    if (!isTrackInPlaylist) {
-      savedPlaylist.push({
-        name: currentTrack.name,
-        artist_name: currentTrack.artist_name,
-        audio: currentTrack.audio
-      });
-      localStorage.setItem('playlist', JSON.stringify(savedPlaylist));
-      setIsLiked(true);
-    } else {
-      savedPlaylist = savedPlaylist.filter(item => item.audio !== currentTrack.audio);
-      localStorage.setItem('playlist', JSON.stringify(savedPlaylist));
-      setIsLiked(false);
+    try {
+      if (!isLiked) {
+        await setDoc(trackRef, {
+          name: track.name,
+          artist_name: track.artist_name,
+          audio: track.audio,
+          image: track.image || track.album_image
+        });
+        setIsLiked(true);
+      } else {
+        await deleteDoc(trackRef);
+        setIsLiked(false);
+      }
+    } catch (error) {
+      console.error('Failed to toggle like:', error);
     }
   };
+
 
   const handleShare = async () => {
     if (!currentTrack) return;

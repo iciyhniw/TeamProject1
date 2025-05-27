@@ -1,41 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { collection, addDoc, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, addDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase';
+import AudioPlayer from '../components/AudioPlayer'; // Твій аудіоплеєр, як у Home
 import '../styles/Library.css';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const Library = () => {
     const [playlists, setPlaylists] = useState([]);
+    const [likedSongs, setLikedSongs] = useState([]);
+    const [showLikedSongs, setShowLikedSongs] = useState(false);
+    const [selectedTrack, setSelectedTrack] = useState(null);
     const [newPlaylistName, setNewPlaylistName] = useState('');
     const [isCreating, setIsCreating] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (auth.currentUser) {
-            fetchPlaylists();
-        }
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                fetchPlaylists();
+                fetchLikedSongs();
+            } else {
+                setPlaylists([]);
+                setLikedSongs([]);
+            }
+        });
+
+        return () => unsubscribe();
     }, []);
 
-    const fetchPlaylists = async () => {
-        if (!auth.currentUser) return;
+  const fetchPlaylists = async () => {
+    try {
+      const q = query(collection(db, 'playlists'), where('userId', '==', auth.currentUser.uid));
+      const querySnapshot = await getDocs(q);
+      const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setPlaylists(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-        try {
-            const playlistsRef = collection(db, 'playlists');
-            const q = query(playlistsRef, where('userId', '==', auth.currentUser.uid));
-            const querySnapshot = await getDocs(q);
-            
-            const playlistsData = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            
-            setPlaylists(playlistsData);
-        } catch (error) {
-            console.error('Error fetching playlists:', error);
-            setError('Failed to load playlists');
-        }
-    };
+  const fetchLikedSongs = async () => {
+    try {
+      const songsCollection = collection(db, 'likedSongs', auth.currentUser.uid, 'songs');
+      const snapshot = await getDocs(songsCollection);
+      const liked = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setLikedSongs(liked);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
     const handleCreatePlaylist = async (e) => {
         e.preventDefault();
@@ -67,109 +82,99 @@ const Library = () => {
         }
     };
 
-    const handleLogin = () => {
-        navigate('/profile');
-    };
 
-    if (!auth.currentUser) {
-        return (
-            <div className="library-page">
-                <div className="library-container">
-                    <div className="library-header">
-                        <h1>Your Library</h1>
-                    </div>
-                    <div className="auth-message">
-                        <h2>Sign in to create and manage your playlists</h2>
-                        <p>Create playlists to organize your favorite tracks and listen to them anytime.</p>
-                        <button className="login-button" onClick={handleLogin}>
-                            Sign In
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
+  if (!auth.currentUser) {
     return (
-        <div className="library-page">
-            <div className="library-container">
-                <div className="library-header">
-                    <h1>Your Library</h1>
-                    {!isCreating ? (
-                        <button 
-                            className="create-playlist-button"
-                            onClick={() => setIsCreating(true)}
-                        >
-                            Create Playlist
-                        </button>
-                    ) : (
-                        <form onSubmit={handleCreatePlaylist} className="create-playlist-form">
-                            <input
-                                type="text"
-                                value={newPlaylistName}
-                                onChange={(e) => setNewPlaylistName(e.target.value)}
-                                placeholder="Enter playlist name"
-                                className="playlist-name-input"
-                            />
-                            <div className="form-buttons">
-                                <button type="submit" className="submit-button">
-                                    Create
-                                </button>
-                                <button 
-                                    type="button" 
-                                    className="cancel-button"
-                                    onClick={() => {
-                                        setIsCreating(false);
-                                        setNewPlaylistName('');
-                                    }}
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </form>
-                    )}
-                </div>
-
-                {error && (
-                    <div className="error-message">
-                        {error}
-                    </div>
-                )}
-
-                <div className="playlists-grid">
-                    {playlists.map((playlist) => (
-                        <Link 
-                            to={`/playlist/${playlist.id}`} 
-                            key={playlist.id}
-                            className="playlist-card"
-                        >
-                            <div className="playlist-image">
-                                <div className="playlist-icon">
-                                    <i className="fas fa-music"></i>
-                                </div>
-                            </div>
-                            <div className="playlist-info">
-                                <h3>{playlist.name}</h3>
-                                <p>{playlist.tracks?.length || 0} tracks</p>
-                            </div>
-                        </Link>
-                    ))}
-                </div>
-
-                {playlists.length === 0 && !isCreating && (
-                    <div className="no-playlists">
-                        <p>You don't have any playlists yet</p>
-                        <button 
-                            className="create-first-playlist"
-                            onClick={() => setIsCreating(true)}
-                        >
-                            Create your first playlist
-                        </button>
-                    </div>
-                )}
-            </div>
-        </div>
+      <div className="library-page">
+        <h2>Sign in to manage your playlists</h2>
+        <button onClick={() => navigate('/profile')}>Sign In</button>
+      </div>
     );
+  }
+
+  return (
+    <div className="library-page with-audio-player">
+      <h1>Your Library</h1>
+
+      <button className="liked-songs-btn" onClick={() => setShowLikedSongs(!showLikedSongs)}>
+        {showLikedSongs ? 'Hide Liked Songs' : 'Show Liked Songs'}
+      </button>
+
+      {showLikedSongs && (
+        likedSongs.length > 0 ? (
+          <div className="track-grid">
+            {likedSongs.map(song => (
+              <div
+                key={song.id}
+                className={`track-card ${selectedTrack?.id === song.id ? 'selected' : ''}`}
+                onClick={() => setSelectedTrack(song)}
+                style={{ cursor: 'pointer' }}
+              >
+                <img
+                  src={song.image}
+                  alt={song.name}
+                  className="track-image"
+                />
+                <div className="track-info">
+                  <p className="track-name">{song.name}</p>
+                  <p className="track-artist">{song.artist_name}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No liked songs yet.</p>
+        )
+      )}
+
+      <AudioPlayer track={selectedTrack} />
+      <h2>Playlists</h2>
+          <div className="library-header">
+              {!isCreating ? (
+                  <button
+                      className="create-playlist-button"
+                      onClick={() => setIsCreating(true)}
+                  >
+                      Create Playlist
+                  </button>
+              ) : (
+                  <form onSubmit={handleCreatePlaylist} className="create-playlist-form">
+                      <input
+                          type="text"
+                          value={newPlaylistName}
+                          onChange={(e) => setNewPlaylistName(e.target.value)}
+                          placeholder="Enter playlist name"
+                          className="playlist-name-input"
+                      />
+                      <div className="form-buttons">
+                          <button type="submit" className="submit-button">
+                              Create
+                          </button>
+                          <button
+                              type="button"
+                              className="cancel-button"
+                              onClick={() => {
+                                  setIsCreating(false);
+                                  setNewPlaylistName('');
+                              }}
+                          >
+                              Cancel
+                          </button>
+                      </div>
+                  </form>
+              )}
+          </div>
+
+      <div className="playlists-grid">
+        {playlists.map(pl => (
+          <Link key={pl.id} to={`/playlist/${pl.id}`} className="playlist-card">
+            <h3>{pl.name}</h3>
+            <p>{pl.tracks?.length || 0} tracks</p>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default Library;
