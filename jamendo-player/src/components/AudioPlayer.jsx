@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FaPlay, FaPause, FaStepForward, FaStepBackward, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
+import { FaPlay, FaPause, FaStepForward, FaStepBackward, FaVolumeUp, FaVolumeMute, FaPlus } from 'react-icons/fa';
 import '../styles/AudioPlayer.css';
-
 import { doc, setDoc, deleteDoc, getDoc, collection } from 'firebase/firestore';
 import { auth, db } from '../firebase';
-
+import { usePlaylist } from '../PlaylistContext';
 
 const AudioPlayer = ({ track, onTrackEnd }) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -15,9 +14,12 @@ const AudioPlayer = ({ track, onTrackEnd }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
+  const [progress, setProgress] = useState(0);
   const audioRef = useRef(null);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [playlist, setPlaylist] = useState([]);
+
+  const { playlists, addTrackToPlaylist, isAddToPlaylistModalOpen, trackToAdd, setTrackToAdd, setIsAddToPlaylistModalOpen } = usePlaylist();
 
   useEffect(() => {
     if (track) {
@@ -38,23 +40,21 @@ const AudioPlayer = ({ track, onTrackEnd }) => {
   }, [track]);
 
   useEffect(() => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !playlist[currentTrackIndex]) return;
 
-    const playAudio = async () => {
-      try {
-        if (isPlaying) {
-          await audioRef.current.play();
-        } else {
-          audioRef.current.pause();
-        }
-      } catch (error) {
-        console.error('Playback error:', error);
-        setIsPlaying(false);
+    const currentTrack = playlist[currentTrackIndex];
+    audioRef.current.src = currentTrack.audio;
+    
+    if (isPlaying) {
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.error('Playback error:', error);
+          setIsPlaying(false);
+        });
       }
-    };
-
-    playAudio();
-  }, [isPlaying, currentTrackIndex]);
+    }
+  }, [currentTrackIndex, playlist, isPlaying]);
 
   useEffect(() => {
     const checkLiked = async () => {
@@ -70,10 +70,10 @@ const AudioPlayer = ({ track, onTrackEnd }) => {
     checkLiked();
   }, [track]);
 
-
   const handleTimeUpdate = () => {
     if (audioRef.current) {
       setCurrentTime(audioRef.current.currentTime);
+      setProgress((audioRef.current.currentTime / audioRef.current.duration) * 100);
     }
   };
 
@@ -113,6 +113,8 @@ const AudioPlayer = ({ track, onTrackEnd }) => {
   };
 
   const togglePlay = async () => {
+    if (!audioRef.current || !playlist[currentTrackIndex]) return;
+
     try {
       if (isPlaying) {
         await audioRef.current.pause();
@@ -131,29 +133,35 @@ const AudioPlayer = ({ track, onTrackEnd }) => {
         audioRef.current.currentTime = 0;
         audioRef.current.play();
       }
-    } else if (currentTrackIndex < playlist.length - 1) {
-      setCurrentTrackIndex(prev => prev + 1);
     } else {
-      setIsPlaying(false);
-      setCurrentTime(0);
-      if (onTrackEnd) {
-        onTrackEnd();
-      }
+      handleNext();
     }
   };
 
   const handleNext = () => {
-    if (currentTrackIndex < playlist.length - 1) {
-      setCurrentTrackIndex(prev => prev + 1);
-      setIsPlaying(true);
+    if (playlist.length === 0) return;
+
+    if (isShuffle) {
+      const randomIndex = Math.floor(Math.random() * playlist.length);
+      setCurrentTrackIndex(randomIndex);
+    } else {
+      const nextIndex = (currentTrackIndex + 1) % playlist.length;
+      setCurrentTrackIndex(nextIndex);
     }
+    setIsPlaying(true);
   };
 
   const handlePrevious = () => {
-    if (currentTrackIndex > 0) {
-      setCurrentTrackIndex(prev => prev - 1);
-      setIsPlaying(true);
+    if (playlist.length === 0) return;
+
+    if (isShuffle) {
+      const randomIndex = Math.floor(Math.random() * playlist.length);
+      setCurrentTrackIndex(randomIndex);
+    } else {
+      const prevIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+      setCurrentTrackIndex(prevIndex);
     }
+    setIsPlaying(true);
   };
 
   const formatTime = (time) => {
@@ -162,20 +170,18 @@ const AudioPlayer = ({ track, onTrackEnd }) => {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const currentTrack = playlist[currentTrackIndex];
-
   const handleLike = async () => {
-    if (!track || !auth.currentUser) return;
+    if (!playlist[currentTrackIndex] || !auth.currentUser) return;
 
-    const trackRef = doc(db, 'likedSongs', auth.currentUser.uid, 'songs', track.id);
+    const trackRef = doc(db, 'likedSongs', auth.currentUser.uid, 'songs', playlist[currentTrackIndex].id);
 
     try {
       if (!isLiked) {
         await setDoc(trackRef, {
-          name: track.name,
-          artist_name: track.artist_name,
-          audio: track.audio,
-          image: track.image || track.album_image
+          name: playlist[currentTrackIndex].name,
+          artist_name: playlist[currentTrackIndex].artist_name,
+          audio: playlist[currentTrackIndex].audio,
+          image: playlist[currentTrackIndex].image || playlist[currentTrackIndex].album_image
         });
         setIsLiked(true);
       } else {
@@ -187,16 +193,15 @@ const AudioPlayer = ({ track, onTrackEnd }) => {
     }
   };
 
-
   const handleShare = async () => {
-    if (!currentTrack) return;
+    if (!playlist[currentTrackIndex]) return;
 
-    const shareText = `Слухай "${currentTrack.name}" від ${currentTrack.artist_name}! 🎵\n${window.location.href}?track=${encodeURIComponent(currentTrack.audio)}`;
+    const shareText = `Слухай "${playlist[currentTrackIndex].name}" від ${playlist[currentTrackIndex].artist_name}! 🎵\n${window.location.href}?track=${encodeURIComponent(playlist[currentTrackIndex].audio)}`;
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${currentTrack.name} - ${currentTrack.artist_name}`,
+          title: `${playlist[currentTrackIndex].name} - ${playlist[currentTrackIndex].artist_name}`,
           text: `Слухай цю пісню!`,
           url: window.location.href,
         });
@@ -211,20 +216,20 @@ const AudioPlayer = ({ track, onTrackEnd }) => {
   };
 
   const handleDownload = async () => {
-    if (!currentTrack || !currentTrack.audio) {
+    if (!playlist[currentTrackIndex] || !playlist[currentTrackIndex].audio) {
       alert('Немає доступного файлу для завантаження.');
       return;
     }
 
     try {
-      const response = await fetch(currentTrack.audio);
+      const response = await fetch(playlist[currentTrackIndex].audio);
       if (!response.ok) throw new Error(`Помилка завантаження: ${response.statusText}`);
       
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${currentTrack.name}_${currentTrack.artist_name}.mp3`;
+      link.download = `${playlist[currentTrackIndex].name}_${playlist[currentTrackIndex].artist_name}.mp3`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -243,17 +248,23 @@ const AudioPlayer = ({ track, onTrackEnd }) => {
     setIsRepeat(!isRepeat);
   };
 
+  const handleAddToPlaylist = () => {
+    if (!playlist[currentTrackIndex]) return;
+    setTrackToAdd(playlist[currentTrackIndex]);
+    setIsAddToPlaylistModalOpen(true);
+  };
+
   return (
     <div className="audio-player">
       <div className="player-main">
         <div className="track-info">
-          <h4>{currentTrack?.name || 'No track selected'}</h4>
-          <p>{currentTrack?.artist_name || ''}</p>
+          <h4>{playlist[currentTrackIndex]?.name || 'No track selected'}</h4>
+          <p>{playlist[currentTrackIndex]?.artist_name || ''}</p>
         </div>
         
         <audio
           ref={audioRef}
-          src={currentTrack?.audio}
+          src={playlist[currentTrackIndex]?.audio}
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
           onEnded={handleEnded}
@@ -322,6 +333,14 @@ const AudioPlayer = ({ track, onTrackEnd }) => {
           title={isLiked ? 'Remove from playlist' : 'Add to playlist'}
         >
           <i className="fas fa-heart"></i>
+        </button>
+        
+        <button 
+          className="action-button add-to-playlist"
+          onClick={handleAddToPlaylist}
+          title="Add to playlist"
+        >
+          <FaPlus />
         </button>
         
         <button 

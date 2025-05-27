@@ -102,6 +102,31 @@
   color: #ff0000; /* Червоний для лайка */
 }
 
+.action-button.add-to-playlist {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+}
+
+.action-button.add-to-playlist:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.action-button.add-to-playlist.active {
+  background: #4a90e2;
+  color: white;
+}
+
 .volume-control {
   display: flex;
   align-items: center;

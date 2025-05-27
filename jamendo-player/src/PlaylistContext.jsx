@@ -1,55 +1,83 @@
-import { createContext, useState } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { collection, getDocs, query, where, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { db, auth } from './firebase';
 
-export const PlaylistContext = createContext();
+const PlaylistContext = createContext();
 
 export const PlaylistProvider = ({ children }) => {
     const [playlists, setPlaylists] = useState([]);
     const [isAddToPlaylistModalOpen, setIsAddToPlaylistModalOpen] = useState(false);
     const [trackToAdd, setTrackToAdd] = useState(null);
 
-    const createPlaylist = (name, iconFile) => {
-        const iconUrl = `/icons/${iconFile.name}`; // Simulate icon upload
-        const newPlaylist = {
-            id: Date.now().toString(),
-            name,
-            iconUrl,
-            tracks: [],
-        };
-        setPlaylists([...playlists, newPlaylist]);
+    useEffect(() => {
+        if (auth.currentUser) {
+            fetchPlaylists();
+        }
+    }, [auth.currentUser]);
+
+    const fetchPlaylists = async () => {
+        try {
+            const q = query(collection(db, 'playlists'), where('userId', '==', auth.currentUser.uid));
+            const querySnapshot = await getDocs(q);
+            const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setPlaylists(data);
+        } catch (err) {
+            console.error('Error fetching playlists:', err);
+        }
     };
 
-    const addTrackToPlaylist = (playlistId, track) => {
-        setPlaylists(playlists.map(playlist => {
-            if (playlist.id === playlistId) {
-                if (!playlist.tracks.some(t => t.id === track.id)) {
-                    return { ...playlist, tracks: [...playlist.tracks, track] };
-                }
-            }
-            return playlist;
-        }));
+    const addTrackToPlaylist = async (playlistId, track) => {
+        try {
+            const playlistRef = doc(db, 'playlists', playlistId);
+            const playlist = playlists.find(p => p.id === playlistId);
+            
+            if (!playlist) return;
+
+            const updatedTracks = [...(playlist.tracks || []), track];
+            
+            await updateDoc(playlistRef, {
+                tracks: updatedTracks
+            });
+
+            // Оновлюємо локальний стан
+            setPlaylists(prevPlaylists => 
+                prevPlaylists.map(p => 
+                    p.id === playlistId 
+                        ? { ...p, tracks: updatedTracks }
+                        : p
+                )
+            );
+
+            setIsAddToPlaylistModalOpen(false);
+            setTrackToAdd(null);
+        } catch (error) {
+            console.error('Error adding track to playlist:', error);
+        }
     };
 
-    const openAddToPlaylistModal = (track) => {
-        setTrackToAdd(track);
-        setIsAddToPlaylistModalOpen(true);
-    };
-
-    const closeAddToPlaylistModal = () => {
-        setIsAddToPlaylistModalOpen(false);
-        setTrackToAdd(null);
+    const value = {
+        playlists,
+        isAddToPlaylistModalOpen,
+        setIsAddToPlaylistModalOpen,
+        trackToAdd,
+        setTrackToAdd,
+        addTrackToPlaylist,
+        fetchPlaylists
     };
 
     return (
-        <PlaylistContext.Provider value={{
-            playlists,
-            createPlaylist,
-            addTrackToPlaylist,
-            isAddToPlaylistModalOpen,
-            trackToAdd,
-            openAddToPlaylistModal,
-            closeAddToPlaylistModal,
-        }}>
+        <PlaylistContext.Provider value={value}>
             {children}
         </PlaylistContext.Provider>
     );
 };
+
+export const usePlaylist = () => {
+    const context = useContext(PlaylistContext);
+    if (!context) {
+        throw new Error('usePlaylist must be used within a PlaylistProvider');
+    }
+    return context;
+};
+
+export { PlaylistContext };
