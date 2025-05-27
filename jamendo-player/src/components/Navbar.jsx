@@ -8,12 +8,9 @@ const Navbar = ({ user }) => {
     return (
         <div className="navbar">
             <div className="nav-links nav-links-left">
-                <Link to="/">Home</Link>
+                <Link to="/search" className="search-icon" aria-label="Search">Home</Link>
             </div>
             <div className="nav-links nav-links-right">
-                <Link to="/search" className="search-icon" aria-label="Search">
-                    <FaSearch />
-                </Link>
                 <Link to="/library">Library</Link>
                 <Link to="/profile">Profile</Link>
                 {user ? (
