@@ -7,28 +7,28 @@ import '../styles/Library.css';
 import { onAuthStateChanged } from 'firebase/auth';
 
 const Library = () => {
-    const [playlists, setPlaylists] = useState([]);
-    const [likedSongs, setLikedSongs] = useState([]);
-    const [showLikedSongs, setShowLikedSongs] = useState(false);
-    const [selectedTrack, setSelectedTrack] = useState(null);
-    const [newPlaylistName, setNewPlaylistName] = useState('');
-    const [isCreating, setIsCreating] = useState(false);
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
+  const [playlists, setPlaylists] = useState([]);
+  const [likedSongs, setLikedSongs] = useState([]);
+  const [showLikedSongs, setShowLikedSongs] = useState(false);
+  const [selectedTrack, setSelectedTrack] = useState(null);
+  const [newPlaylistName, setNewPlaylistName] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                fetchPlaylists();
-                fetchLikedSongs();
-            } else {
-                setPlaylists([]);
-                setLikedSongs([]);
-            }
-        });
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        fetchPlaylists();
+        fetchLikedSongs();
+      } else {
+        navigate('/profile'); // редірект на сторінку входу
+      }
+    });
 
-        return () => unsubscribe();
-    }, []);
+    return () => unsubscribe();
+  }, [navigate]);
+
 
   const fetchPlaylists = async () => {
     try {
@@ -83,14 +83,7 @@ const Library = () => {
     };
 
 
-  if (!auth.currentUser) {
-    return (
-      <div className="library-page">
-        <h2>Sign in to manage your playlists</h2>
-        <button onClick={() => navigate('/profile')}>Sign In</button>
-      </div>
-    );
-  }
+  
 
   return (
     <div className="library-page with-audio-player">
@@ -127,7 +120,6 @@ const Library = () => {
         )
       )}
 
-      <AudioPlayer track={selectedTrack} />
       <h2>Playlists</h2>
           <div className="library-header">
               {!isCreating ? (
@@ -173,6 +165,7 @@ const Library = () => {
           </Link>
         ))}
       </div>
+      <AudioPlayer track={selectedTrack} />
     </div>
   );
 };
