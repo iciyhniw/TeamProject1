@@ -165,7 +165,9 @@ const Library = () => {
           </Link>
         ))}
       </div>
-      <AudioPlayer track={selectedTrack} />
+      <div className="audio-player-wrapper">
+        <AudioPlayer track={selectedTrack} />
+      </div>
     </div>
   );
 };

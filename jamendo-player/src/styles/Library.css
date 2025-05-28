@@ -499,6 +499,11 @@
     border: 1px solid rgba(231, 76, 60, 0.2);
 }
 
+.audio-player-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
 @media (max-width: 768px) {
     .library-page {
         padding: 1rem;
