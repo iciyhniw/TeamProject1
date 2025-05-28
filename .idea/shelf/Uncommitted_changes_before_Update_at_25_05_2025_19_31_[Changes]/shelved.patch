@@ -1,0 +1,565 @@
+Index: jamendo-player/src/components/Navbar.jsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import React from 'react';\r\nimport { Link, useNavigate } from 'react-router-dom';\r\nimport { signOut } from 'firebase/auth';\r\nimport { auth } from '../firebase';\r\n\r\nconst Navbar = ({ onSearch, user }) => {\r\n    const navigate = useNavigate();\r\n\r\n    const handleFocus = () => {\r\n        navigate('/search');\r\n    };\r\n\r\n    return (\r\n        <div className=\"navbar\">\r\n            <div className=\"nav-links\">\r\n                <Link to=\"/\">Home</Link>\r\n            </div>\r\n            <input\r\n                type=\"text\"\r\n                placeholder=\"Search music...\"\r\n                onChange={(e) => onSearch && onSearch(e.target.value)}\r\n                onFocus={handleFocus}\r\n            />\r\n            <div className=\"nav-links nav-links-right\">\r\n                <Link to=\"/profile\">Profile</Link>\r\n            </div>\r\n            <div className=\"auth-section\">\r\n              {user ? (\r\n                <>\r\n                  <button onClick={() => signOut(auth)} className=\"logout-button\">Вихід</button>\r\n                </>\r\n              ) : (\r\n                <>\r\n                  <Link to=\"/login\" className=\"auth-button login\">Увійти</Link>\r\n                  <Link to=\"/register\" className=\"auth-button register\">Реєстрація</Link>\r\n                </>\r\n              )}\r\n            </div>\r\n        </div>\r\n        \r\n    );\r\n};\r\n\r\nexport default Navbar;
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/jamendo-player/src/components/Navbar.jsx b/jamendo-player/src/components/Navbar.jsx
+--- a/jamendo-player/src/components/Navbar.jsx	(revision 9c3b6a5a17042e689998e53f0927822e324af892)
++++ b/jamendo-player/src/components/Navbar.jsx	(date 1748190237048)
+@@ -1,9 +1,8 @@
+ import React from 'react';
+ import { Link, useNavigate } from 'react-router-dom';
+-import { signOut } from 'firebase/auth';
+-import { auth } from '../firebase';
+ 
+-const Navbar = ({ onSearch, user }) => {
++
++const Navbar = ({ onSearch }) => {
+     const navigate = useNavigate();
+ 
+     const handleFocus = () => {
+@@ -23,21 +22,8 @@
+             />
+             <div className="nav-links nav-links-right">
+                 <Link to="/profile">Profile</Link>
+-            </div>
+-            <div className="auth-section">
+-              {user ? (
+-                <>
+-                  <button onClick={() => signOut(auth)} className="logout-button">Вихід</button>
+-                </>
+-              ) : (
+-                <>
+-                  <Link to="/login" className="auth-button login">Увійти</Link>
+-                  <Link to="/register" className="auth-button register">Реєстрація</Link>
+-                </>
+-              )}
+             </div>
+         </div>
+-        
+     );
+ };
+ 
+Index: jamendo-player/src/App.jsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import React, { useEffect, useState } from 'react';\r\nimport { BrowserRouter as Router, Routes, Route } from 'react-router-dom';\r\nimport Home from './pages/Home';\r\nimport Search from './pages/Search';\r\nimport './styles/CommonFile.css'\r\nimport Profile from \"./pages/Profile\";\r\nimport LoginPage from './pages/LoginPage';\r\nimport RegisterPage from './pages/RegisterPage';\r\nimport Navbar from './components/Navbar';\r\nimport { auth } from './firebase';\r\nimport { onAuthStateChanged } from 'firebase/auth';\r\n\r\nconst App = () => {\r\n  const [user, setUser] = useState(null); // \uD83D\uDD39 Додаємо стан користувача\r\n\r\n  useEffect(() => {\r\n    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {\r\n      setUser(currentUser); // \uD83D\uDD04 оновлення користувача при вході/виході\r\n    });\r\n\r\n    return () => unsubscribe(); // очистка слухача\r\n  }, []);\r\n  return(\r\n  <Router>\r\n    <Navbar user={user} />\r\n    <Routes>\r\n      <Route path=\"/\" element={<Home />} />\r\n      <Route path=\"/search\" element={<Search />} />\r\n      <Route path= \"/Profile\" element={<Profile />} />\r\n      <Route path=\"/login\" element={<LoginPage />} />\r\n      <Route path=\"/register\" element={<RegisterPage />} />\r\n    </Routes>\r\n  </Router>\r\n  );\r\n};\r\n\r\nexport default App;\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/jamendo-player/src/App.jsx b/jamendo-player/src/App.jsx
+--- a/jamendo-player/src/App.jsx	(revision 9c3b6a5a17042e689998e53f0927822e324af892)
++++ b/jamendo-player/src/App.jsx	(date 1748190245182)
+@@ -1,37 +1,19 @@
+-import React, { useEffect, useState } from 'react';
++import React from 'react';
+ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+ import Home from './pages/Home';
+ import Search from './pages/Search';
+ import './styles/CommonFile.css'
+ import Profile from "./pages/Profile";
+-import LoginPage from './pages/LoginPage';
+-import RegisterPage from './pages/RegisterPage';
+-import Navbar from './components/Navbar';
+-import { auth } from './firebase';
+-import { onAuthStateChanged } from 'firebase/auth';
+ 
+-const App = () => {
+-  const [user, setUser] = useState(null); // 🔹 Додаємо стан користувача
+ 
+-  useEffect(() => {
+-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+-      setUser(currentUser); // 🔄 оновлення користувача при вході/виході
+-    });
+-
+-    return () => unsubscribe(); // очистка слухача
+-  }, []);
+-  return(
++const App = () => (
+   <Router>
+-    <Navbar user={user} />
+     <Routes>
+       <Route path="/" element={<Home />} />
+       <Route path="/search" element={<Search />} />
+       <Route path= "/Profile" element={<Profile />} />
+-      <Route path="/login" element={<LoginPage />} />
+-      <Route path="/register" element={<RegisterPage />} />
+     </Routes>
+   </Router>
+-  );
+-};
++);
+ 
+ export default App;
+Index: jamendo-player/src/components/AudioPlayer.jsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import React, { useState, useRef, useEffect } from 'react';\r\n\r\nconst AudioPlayer = ({ track }) => {\r\n  const [isPlaying, setIsPlaying] = useState(false);\r\n  const [currentTime, setCurrentTime] = useState(0);\r\n  const [duration, setDuration] = useState(0);\r\n  const [volume, setVolume] = useState(0.5);\r\n  const audioRef = useRef(null);\r\n\r\n  const togglePlayPause = () => {\r\n    if (!audioRef.current) return;\r\n    if (isPlaying) {\r\n      audioRef.current.pause();\r\n    } else {\r\n      audioRef.current.play();\r\n    }\r\n    setIsPlaying(!isPlaying);\r\n  };\r\n\r\n  const handleTimeUpdate = () => {\r\n    if (!audioRef.current) return;\r\n    setCurrentTime(audioRef.current.currentTime);\r\n    setDuration(audioRef.current.duration);\r\n  };\r\n\r\n  const formatTime = (time) => {\r\n    const minutes = Math.floor(time / 60);\r\n    const seconds = Math.floor(time % 60);\r\n    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;\r\n  };\r\n\r\n  const handleSeek = (e) => {\r\n    if (!audioRef.current) return;\r\n    const progressBar = e.currentTarget;\r\n    const rect = progressBar.getBoundingClientRect();\r\n    const clickX = e.clientX - rect.left;\r\n    const percentage = clickX / rect.width;\r\n    const newTime = percentage * duration;\r\n    audioRef.current.currentTime = newTime;\r\n    setCurrentTime(newTime);\r\n  };\r\n\r\n  const handleVolumeChange = (e) => {\r\n    if (!audioRef.current) return;\r\n    const newVolume = e.target.value;\r\n    setVolume(newVolume);\r\n    audioRef.current.volume = newVolume;\r\n  };\r\n\r\n  useEffect(() => {\r\n    if (!track || !audioRef.current) return;\r\n    const audio = audioRef.current;\r\n    audio.volume = volume;\r\n    audio.addEventListener('loadedmetadata', () => {\r\n      setDuration(audio.duration);\r\n    });\r\n    return () => {\r\n      audio.removeEventListener('loadedmetadata', () => {});\r\n    };\r\n  }, [track, volume]);\r\n\r\n  const progressPercentage = duration ? (currentTime / duration) * 100 : 0;\r\n\r\n  const handleShare = async () => {\r\n    if (!track) return;\r\n\r\n    const shareText = `Слухай \"${track.name}\" від ${track.artist_name}! \uD83C\uDFB5\\n${window.location.href}?track=${encodeURIComponent(track.audio)}`;\r\n\r\n    if (navigator.share) {\r\n      try {\r\n        await navigator.share({\r\n          title: `${track.name} - ${track.artist_name}`,\r\n          text: `Слухай цю пісню!`,\r\n          url: window.location.href,\r\n        });\r\n        console.log('Пісня успішно поділена!');\r\n      } catch (error) {\r\n        console.log('Помилка поділу:', error);\r\n      }\r\n    } else {\r\n      navigator.clipboard.writeText(shareText)\r\n        .then(() => alert('Посилання на пісню скопійовано в буфер обміну!'))\r\n        .catch((err) => console.error('Помилка копіювання:', err));\r\n    }\r\n  };\r\n\r\n  // Альтернативна функція для скачування\r\n  const handleDownload = async () => {\r\n    if (!track || !track.audio) {\r\n      alert('Немає доступного файлу для завантаження.');\r\n      return;\r\n    }\r\n\r\n    try {\r\n      // Завантажуємо файл як Blob\r\n      const response = await fetch(track.audio, {\r\n        method: 'GET',\r\n        mode: 'cors', // Додаємо CORS, якщо потрібно\r\n        headers: {\r\n          'Accept': 'audio/mpeg', // Вказуємо тип файлу\r\n        },\r\n      });\r\n\r\n      if (!response.ok) {\r\n        throw new Error(`Помилка завантаження: ${response.statusText}`);\r\n      }\r\n\r\n      const blob = await response.blob();\r\n      const url = window.URL.createObjectURL(blob);\r\n      const link = document.createElement('a');\r\n      link.href = url;\r\n      link.download = `${track.name}_${track.artist_name}.mp3`; // Ім'я файлу\r\n      document.body.appendChild(link);\r\n      link.click();\r\n      document.body.removeChild(link);\r\n      window.URL.revokeObjectURL(url); // Очищаємо пам’ять\r\n\r\n      alert('Пісня завантажується...');\r\n    } catch (error) {\r\n      console.error('Помилка при завантаженні:', error);\r\n      alert('Не вдалося завантажити пісню. Перевірте URL або серверні налаштування.');\r\n    }\r\n  };\r\n\r\n  if (!track) return null;\r\n\r\n  return (\r\n    <div className=\"audio-player\">\r\n      <h4>\r\n        {track.name} - {track.artist_name}\r\n      </h4>\r\n      <audio\r\n        ref={audioRef}\r\n        src={track.audio}\r\n        onTimeUpdate={handleTimeUpdate}\r\n        onEnded={() => setIsPlaying(false)}\r\n      />\r\n      <span className=\"time\">{formatTime(currentTime)}</span>\r\n      <div className=\"controls\">\r\n        <button className=\"like\">♥</button>\r\n        <button className=\"previous\">⏪</button>\r\n        <button className=\"play-pause\" onClick={togglePlayPause}>\r\n          {isPlaying ? '⏸' : '▶'}\r\n        </button>\r\n        <button className=\"next\">⏩</button>\r\n        <button className=\"share\" onClick={handleShare}>\uD83D\uDCE4</button>\r\n        <button className=\"download\" onClick={handleDownload}>⬇\uFE0F</button>\r\n      </div>\r\n      <span className=\"time\">{formatTime(duration)}</span>\r\n      <div className=\"progress-bar\" onClick={handleSeek}>\r\n        <div className=\"progress\" style={{ width: `${progressPercentage}%` }} />\r\n      </div>\r\n      <div className=\"volume\">\r\n        <input\r\n          type=\"range\"\r\n          min=\"0\"\r\n          max=\"1\"\r\n          step=\"0.01\"\r\n          value={volume}\r\n          onChange={handleVolumeChange}\r\n        />\r\n      </div>\r\n    </div>\r\n  );\r\n};\r\n\r\nexport default AudioPlayer;
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/jamendo-player/src/components/AudioPlayer.jsx b/jamendo-player/src/components/AudioPlayer.jsx
+--- a/jamendo-player/src/components/AudioPlayer.jsx	(revision 9c3b6a5a17042e689998e53f0927822e324af892)
++++ b/jamendo-player/src/components/AudioPlayer.jsx	(date 1748190245201)
+@@ -1,4 +1,5 @@
+-import React, { useState, useRef, useEffect } from 'react';
++import { useContext, useState, useRef, useEffect } from 'react';
++import { PlaylistContext } from '../PlaylistContext';
+ 
+ const AudioPlayer = ({ track }) => {
+   const [isPlaying, setIsPlaying] = useState(false);
+@@ -6,6 +7,7 @@
+   const [duration, setDuration] = useState(0);
+   const [volume, setVolume] = useState(0.5);
+   const audioRef = useRef(null);
++  const { openAddToPlaylistModal } = useContext(PlaylistContext);
+ 
+   const togglePlayPause = () => {
+     if (!audioRef.current) return;
+@@ -79,12 +81,11 @@
+       }
+     } else {
+       navigator.clipboard.writeText(shareText)
+-        .then(() => alert('Посилання на пісню скопійовано в буфер обміну!'))
+-        .catch((err) => console.error('Помилка копіювання:', err));
++          .then(() => alert('Посилання на пісню скопійовано в буфер обміну!'))
++          .catch((err) => console.error('Помилка копіювання:', err));
+     }
+   };
+ 
+-  // Альтернативна функція для скачування
+   const handleDownload = async () => {
+     if (!track || !track.audio) {
+       alert('Немає доступного файлу для завантаження.');
+@@ -92,12 +93,11 @@
+     }
+ 
+     try {
+-      // Завантажуємо файл як Blob
+       const response = await fetch(track.audio, {
+         method: 'GET',
+-        mode: 'cors', // Додаємо CORS, якщо потрібно
++        mode: 'cors',
+         headers: {
+-          'Accept': 'audio/mpeg', // Вказуємо тип файлу
++          'Accept': 'audio/mpeg',
+         },
+       });
+ 
+@@ -109,11 +109,11 @@
+       const url = window.URL.createObjectURL(blob);
+       const link = document.createElement('a');
+       link.href = url;
+-      link.download = `${track.name}_${track.artist_name}.mp3`; // Ім'я файлу
++      link.download = `${track.name}_${track.artist_name}.mp3`;
+       document.body.appendChild(link);
+       link.click();
+       document.body.removeChild(link);
+-      window.URL.revokeObjectURL(url); // Очищаємо пам’ять
++      window.URL.revokeObjectURL(url);
+ 
+       alert('Пісня завантажується...');
+     } catch (error) {
+@@ -125,42 +125,42 @@
+   if (!track) return null;
+ 
+   return (
+-    <div className="audio-player">
+-      <h4>
+-        {track.name} - {track.artist_name}
+-      </h4>
+-      <audio
+-        ref={audioRef}
+-        src={track.audio}
+-        onTimeUpdate={handleTimeUpdate}
+-        onEnded={() => setIsPlaying(false)}
+-      />
+-      <span className="time">{formatTime(currentTime)}</span>
+-      <div className="controls">
+-        <button className="like">♥</button>
+-        <button className="previous">⏪</button>
+-        <button className="play-pause" onClick={togglePlayPause}>
+-          {isPlaying ? '⏸' : '▶'}
+-        </button>
+-        <button className="next">⏩</button>
+-        <button className="share" onClick={handleShare}>📤</button>
+-        <button className="download" onClick={handleDownload}>⬇️</button>
+-      </div>
+-      <span className="time">{formatTime(duration)}</span>
+-      <div className="progress-bar" onClick={handleSeek}>
+-        <div className="progress" style={{ width: `${progressPercentage}%` }} />
+-      </div>
+-      <div className="volume">
+-        <input
+-          type="range"
+-          min="0"
+-          max="1"
+-          step="0.01"
+-          value={volume}
+-          onChange={handleVolumeChange}
+-        />
+-      </div>
+-    </div>
++      <div className="audio-player">
++        <h4>
++          {track.name} - {track.artist_name}
++        </h4>
++        <audio
++            ref={audioRef}
++            src={track.audio}
++            onTimeUpdate={handleTimeUpdate}
++            onEnded={() => setIsPlaying(false)}
++        />
++        <span className="time">{formatTime(currentTime)}</span>
++        <div className="controls">
++          <button className="like" onClick={() => openAddToPlaylistModal(track)}>♥</button>
++          <button className="previous">⏪</button>
++          <button className="play-pause" onClick={togglePlayPause}>
++            {isPlaying ? '⏸' : '▶'}
++          </button>
++          <button className="next">⏩</button>
++          <button className="share" onClick={handleShare}>📤</button>
++          <button className="download" onClick={handleDownload}>⬇️</button>
++        </div>
++        <span className="time">{formatTime(duration)}</span>
++        <div className="progress-bar" onClick={handleSeek}>
++          <div className="progress" style={{ width: `${progressPercentage}%` }} />
++        </div>
++        <div className="volume">
++          <input
++              type="range"
++              min="0"
++              max="1"
++              step="0.01"
++              value={volume}
++              onChange={handleVolumeChange}
++          />
++        </div>
++      </div>
+   );
+ };
+ 
+Index: jamendo-player/src/styles/CommonFile.css
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>@import './App.css';\r\n@import './AudioPlayer.css';\r\n@import './Genre.css';\r\n@import './index.css';\r\n@import './Navbar.css';\r\n@import './Profile.css';\r\n@import './Home.css';\r\n@import './Search.css';\r\n@import './LoginRegisterPages.css';
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/jamendo-player/src/styles/CommonFile.css b/jamendo-player/src/styles/CommonFile.css
+--- a/jamendo-player/src/styles/CommonFile.css	(revision 9c3b6a5a17042e689998e53f0927822e324af892)
++++ b/jamendo-player/src/styles/CommonFile.css	(date 1748190245207)
+@@ -6,4 +6,5 @@
+ @import './Profile.css';
+ @import './Home.css';
+ @import './Search.css';
++@import './Library.css';
+ @import './LoginRegisterPages.css';
+\ No newline at end of file
+Index: jamendo-player/src/PlaylistContext.jsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/jamendo-player/src/PlaylistContext.jsx b/jamendo-player/src/PlaylistContext.jsx
+new file mode 100644
+--- /dev/null	(date 1748190245217)
++++ b/jamendo-player/src/PlaylistContext.jsx	(date 1748190245217)
+@@ -0,0 +1,55 @@
++import { createContext, useState } from 'react';
++
++export const PlaylistContext = createContext();
++
++export const PlaylistProvider = ({ children }) => {
++    const [playlists, setPlaylists] = useState([]);
++    const [isAddToPlaylistModalOpen, setIsAddToPlaylistModalOpen] = useState(false);
++    const [trackToAdd, setTrackToAdd] = useState(null);
++
++    const createPlaylist = (name, iconFile) => {
++        const iconUrl = `/icons/${iconFile.name}`; // Simulate icon upload
++        const newPlaylist = {
++            id: Date.now().toString(),
++            name,
++            iconUrl,
++            tracks: [],
++        };
++        setPlaylists([...playlists, newPlaylist]);
++    };
++
++    const addTrackToPlaylist = (playlistId, track) => {
++        setPlaylists(playlists.map(playlist => {
++            if (playlist.id === playlistId) {
++                if (!playlist.tracks.some(t => t.id === track.id)) {
++                    return { ...playlist, tracks: [...playlist.tracks, track] };
++                }
++            }
++            return playlist;
++        }));
++    };
++
++    const openAddToPlaylistModal = (track) => {
++        setTrackToAdd(track);
++        setIsAddToPlaylistModalOpen(true);
++    };
++
++    const closeAddToPlaylistModal = () => {
++        setIsAddToPlaylistModalOpen(false);
++        setTrackToAdd(null);
++    };
++
++    return (
++        <PlaylistContext.Provider value={{
++            playlists,
++            createPlaylist,
++            addTrackToPlaylist,
++            isAddToPlaylistModalOpen,
++            trackToAdd,
++            openAddToPlaylistModal,
++            closeAddToPlaylistModal,
++        }}>
++            {children}
++        </PlaylistContext.Provider>
++    );
++};
+\ No newline at end of file
+Index: jamendo-player/src/pages/Library.jsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/jamendo-player/src/pages/Library.jsx b/jamendo-player/src/pages/Library.jsx
+new file mode 100644
+--- /dev/null	(date 1748190245212)
++++ b/jamendo-player/src/pages/Library.jsx	(date 1748190245212)
+@@ -0,0 +1,57 @@
++import { useContext, useState } from 'react';
++import { useNavigate } from 'react-router-dom';
++import { PlaylistContext } from '../PlaylistContext';
++
++const Library = () => {
++    const { playlists, createPlaylist } = useContext(PlaylistContext);
++    const [showCreateForm, setShowCreateForm] = useState(false);
++    const [playlistName, setPlaylistName] = useState('');
++    const [iconFile, setIconFile] = useState(null);
++    const navigate = useNavigate();
++
++    const handleCreatePlaylist = () => {
++        if (playlistName && iconFile) {
++            createPlaylist(playlistName, iconFile);
++            setPlaylistName('');
++            setIconFile(null);
++            setShowCreateForm(false);
++        }
++    };
++
++    return (
++        <div className="library-page">
++            <h1>Library</h1>
++            <button onClick={() => setShowCreateForm(true)}>Create New Playlist</button>
++            {showCreateForm && (
++                <div className="create-playlist-form">
++                    <input
++                        type="text"
++                        placeholder="Playlist Name"
++                        value={playlistName}
++                        onChange={(e) => setPlaylistName(e.target.value)}
++                    />
++                    <input
++                        type="file"
++                        onChange={(e) => setIconFile(e.target.files[0])}
++                    />
++                    <button onClick={handleCreatePlaylist}>Create</button>
++                    <button onClick={() => setShowCreateForm(false)}>Cancel</button>
++                </div>
++            )}
++            <div className="playlists">
++                {playlists.map(playlist => (
++                    <div
++                        key={playlist.id}
++                        className="playlist-item"
++                        onClick={() => navigate(`/playlist/${playlist.id}`)}
++                    >
++                        <img src={playlist.iconUrl} alt={playlist.name} />
++                        <p>{playlist.name}</p>
++                    </div>
++                ))}
++            </div>
++        </div>
++    );
++};
++
++export default Library;
+\ No newline at end of file
+Index: jamendo-player/src/components/AddToPlaylistModal.jsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/jamendo-player/src/components/AddToPlaylistModal.jsx b/jamendo-player/src/components/AddToPlaylistModal.jsx
+new file mode 100644
+--- /dev/null	(date 1748190245223)
++++ b/jamendo-player/src/components/AddToPlaylistModal.jsx	(date 1748190245223)
+@@ -0,0 +1,28 @@
++import { useContext } from 'react';
++import { PlaylistContext } from '../PlaylistContext';
++
++const AddToPlaylistModal = () => {
++    const { playlists, addTrackToPlaylist, isAddToPlaylistModalOpen, trackToAdd, closeAddToPlaylistModal } = useContext(PlaylistContext);
++
++    if (!isAddToPlaylistModalOpen || !trackToAdd) return null;
++
++    return (
++        <div className="modal">
++            <h2>Add "{trackToAdd.name}" to playlist</h2>
++            <ul>
++                {playlists.map(playlist => (
++                    <li key={playlist.id}>
++                        {playlist.name}
++                        <button onClick={() => {
++                            addTrackToPlaylist(playlist.id, trackToAdd);
++                            closeAddToPlaylistModal();
++                        }}>Add</button>
++                    </li>
++                ))}
++            </ul>
++            <button onClick={closeAddToPlaylistModal}>Cancel</button>
++        </div>
++    );
++};
++
++export default AddToPlaylistModal;
+\ No newline at end of file
+Index: jamendo-player/src/styles/Library.css
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/jamendo-player/src/styles/Library.css b/jamendo-player/src/styles/Library.css
+new file mode 100644
+--- /dev/null	(date 1748190245221)
++++ b/jamendo-player/src/styles/Library.css	(date 1748190245221)
+@@ -0,0 +1,119 @@
++.library-page {
++    background: linear-gradient(135deg, #2b2d42 0%, #4b5e8a 100%);
++    min-height: 100vh;
++    display: flex;
++    flex-direction: column;
++    padding: 2rem;
++}
++
++.library-page h1 {
++    color: #ffffff;
++    font-size: 2rem;
++    font-weight: 700;
++    text-align: center;
++    margin-bottom: 1.5rem;
++}
++
++.create-playlist-form {
++    background-color: rgba(255, 255, 255, 0.95);
++    border-radius: 16px;
++    padding: 1.5rem;
++    max-width: 500px;
++    margin: 0 auto 2rem;
++    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
++    display: flex;
++    flex-direction: column;
++    gap: 1rem;
++}
++
++.create-playlist-form input[type="text"],
++.create-playlist-form input[type="file"] {
++    padding: 0.7rem;
++    border: 1px solid #d1d5db;
++    border-radius: 8px;
++    font-size: 1rem;
++    color: #374151;
++}
++
++.create-playlist-form input[type="text"]:focus,
++.create-playlist-form input[type="file"]:focus {
++    outline: none;
++    border-color: #8b5cf6;
++    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
++}
++
++.create-playlist-form button {
++    background: linear-gradient(90deg, #8b5cf6, #ec4899);
++    color: #ffffff;
++    font-weight: 600;
++    font-size: 1rem;
++    padding: 0.7rem 1.5rem;
++    border: none;
++    border-radius: 10px;
++    cursor: pointer;
++    transition: all 0.3s ease;
++    position: relative;
++    overflow: hidden;
++}
++
++.create-playlist-form button::after {
++    content: '';
++    position: absolute;
++    top: 0;
++    left: -100%;
++    width: 100%;
++    height: 100%;
++    background: linear-gradient(
++            90deg,
++            transparent,
++            rgba(255, 255, 255, 0.2),
++            transparent
++    );
++    transition: left 0.4s ease;
++}
++
++.create-playlist-form button:hover::after {
++    left: 100%;
++}
++
++.create-playlist-form button:hover {
++    transform: translateY(-2px);
++    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
++}
++
++.playlists {
++    display: grid;
++    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
++    gap: 1.5rem;
++    padding: 1rem;
++}
++
++.playlist-item {
++    background-color: rgba(255, 255, 255, 0.95);
++    border-radius: 12px;
++    padding: 1rem;
++    text-align: center;
++    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
++    transition: transform 0.3s ease;
++    cursor: pointer;
++}
++
++.playlist-item:hover {
++    transform: translateY(-4px);
++    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
++}
++
++.playlist-item img {
++    width: 100%;
++    height: 150px;
++    object-fit: cover;
++    border-radius: 8px;
++    margin-bottom: 0.5rem;
++}
++
++.playlist-item p {
++    color: #2b2d42;
++    font-size: 1.1rem;
++    font-weight: 500;
++    margin: 0;
++}
+\ No newline at end of file
+diff --git a/jamendo-player/src/pages/PlaylistPage.jsx b/jamendo-player/src/pages/PlaylistPage.jsx
+new file mode 100644
